@@ -1,0 +1,46 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+  - name: Install packages
+    apt:
+      name:
+      - net-tools
+      - build-essential 
+      - squid
+      - tor
+      state: latest
+      cache_valid_time: 3600
+
+  - name: Copy Squid config file
+    copy:
+      src: /home/vagrant/provision/templates/squid.conf
+      dest: /etc/squid/squid.conf
+      owner: root
+      group: root
+      mode: '0644'
+
+  - name: Copy Tor config file
+    copy:
+      src: /home/vagrant/provision/templates/torrc
+      dest: /etc/tor/torrc
+      owner: root
+      group: root
+      mode: '0644'
+
+  - name: Remove torsocks file
+    file:
+      path: /etc/tor/torsocks.conf
+      state: absent
+
+  - name: Restarting Squid
+    service:
+      name: squid
+      state: restarted
+
+  - name: Restarting Tor
+    service:
+      name: tor
+      state: restarted
+
+
